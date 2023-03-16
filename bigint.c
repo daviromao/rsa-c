@@ -62,3 +62,55 @@ BigInt read_bigint(){
 
     return b;
 }
+
+int compare_bigint(BigInt a, BigInt b){
+    if(a.size > b.size){
+        return 1;
+    } else if(a.size < b.size){
+        return -1;
+    }
+
+    for(int i = 0; i < a.size; i++){
+        if(a.digits[i] > b.digits[i]){
+            return 1;
+        } else if(a.digits[i] < b.digits[i]){
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+BigInt subtract_bigint(BigInt a, BigInt b){
+    if(compare_bigint(a, b) == -1){
+        BigInt c;
+        c.size = 1;
+        c.digits[0] = 0;
+        return c;
+    }
+
+    a = invert_bigint(a);
+    b = invert_bigint(b);
+    
+    for(int i = 0; i < b.size; i++){
+        if(a.digits[i] < 0){
+            a.digits[i] += 10;
+            a.digits[i+1] --;
+        }
+
+        if(a.digits[i] < b.digits[i]){
+            a.digits[i]+=10;
+            a.digits[i+1]--;
+        }
+    
+        a.digits[i] -= b.digits[i];
+    }
+
+    while(a.digits[a.size-1] == 0 && a.size > 1){
+        a.size--;
+    }
+
+    a = invert_bigint(a);
+
+    return a;
+}
