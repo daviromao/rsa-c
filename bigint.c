@@ -155,3 +155,30 @@ BigIntDivision divide_bigint(BigInt a, BigInt b){
 
     return (BigIntDivision){quotient, remainder};
 }
+
+BigInt exp_mod_bigint(BigInt b, BigInt e, BigInt m){
+    if(m.size == 1 && m.digits[0] == 1){
+        BigInt c;
+        c.size = 1;
+        c.digits[0] = 0;
+        return c;
+    }
+
+    BigInt result;
+    result.size = 1;
+    result.digits[0] = 1;
+
+    b = divide_bigint(b, m).remainder;
+
+
+    while(e.size > 1 || e.digits[0] != 0){
+        if(e.digits[e.size-1] % 2 == 1){
+            result = divide_bigint(multiply_bigint(result, b), m).remainder;
+
+        }
+        e = divide_bigint(e, (BigInt){{2}, 1}).quotient;
+        b = divide_bigint(multiply_bigint(b, b), m).remainder;
+    }
+
+    return result;
+}
