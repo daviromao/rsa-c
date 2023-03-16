@@ -114,3 +114,44 @@ BigInt subtract_bigint(BigInt a, BigInt b){
 
     return a;
 }
+
+void append_bigint(BigInt *a, short digit){
+    a->digits[a->size] = digit;
+    a->size++;
+}
+
+BigIntDivision divide_bigint(BigInt a, BigInt b){
+    BigInt quotient;
+    BigInt remainder;
+
+    quotient.size = 0;
+    remainder.size = 0;
+
+    for(int i = 0; i < a.size; i++){
+        append_bigint(&remainder, a.digits[i]);
+        int x = 0;
+
+        while (compare_bigint(remainder, b) != -1){
+            remainder = subtract_bigint(remainder, b);
+            x++;
+        }
+
+        append_bigint(&quotient, x);
+    }
+
+    while(quotient.digits[0] == 0 && quotient.size > 1){
+        for(int i = 0; i < quotient.size; i++){
+            quotient.digits[i] = quotient.digits[i+1];
+        }
+        quotient.size--;
+    }
+
+    while(remainder.digits[0] == 0 && remainder.size > 1){
+        for(int i = 0; i < remainder.size; i++){
+            remainder.digits[i] = remainder.digits[i+1];
+        }
+        remainder.size--;
+    }
+
+    return (BigIntDivision){quotient, remainder};
+}
