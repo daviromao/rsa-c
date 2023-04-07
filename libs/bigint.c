@@ -6,6 +6,7 @@
 typedef struct BigInt {
     short digits[MAX_DIGITS];   
     int size;
+    short sign;
 } BigInt;
 
 typedef struct {
@@ -41,6 +42,8 @@ BigInt multiply_bigint(BigInt a, BigInt b){
     BigInt c;
 
     c.size = MAX_DIGITS;
+    c.sign = a.sign * b.sign;
+
     memset(c.digits, 0, sizeof(c.digits));
 
     for(int i=0; i<a.size; i++){
@@ -48,6 +51,51 @@ BigInt multiply_bigint(BigInt a, BigInt b){
             c.digits[i+j] += a.digits[a.size-i-1] * b.digits[b.size-j-1];
             c.digits[i+j+1] += c.digits[i+j] / 10;
             c.digits[i+j] %= 10;
+        }
+    }
+
+    while(c.digits[c.size-1] == 0 && c.size > 1){
+        c.size--;
+    }
+
+    c = invert_bigint(c);
+
+    return c;
+}
+
+BigInt sum_bigint(BigInt a, BigInt b){
+    if(a.sign == -1 && b.sign == 1){
+        a.sign = 1;
+        BigInt c = subtract_bigint(b, a);
+        return c;
+    } else if(a.sign == 1 && b.sign == -1){
+        b.sign = 1;
+        return subtract_bigint(a, b);
+    } else if(a.sign == -1 && b.sign == -1){
+        a.sign = 1;
+        b.sign = 1;
+        BigInt c = sum_bigint(a, b);
+        c.sign = -1;
+        return c;
+    }
+
+    BigInt c;
+    c.size = MAX_DIGITS;
+    c.sign = a.sign;
+    memset(c.digits, 0, sizeof(c.digits));
+
+    for(int i = 0; i < a.size; i++){
+        c.digits[i] += a.digits[a.size-i-1];
+    }
+
+    for(int i = 0; i < b.size; i++){
+        c.digits[i] += b.digits[b.size-i-1];
+    }
+
+    for(int i = 0; i < c.size; i++){
+        if(c.digits[i] >= 10){
+            c.digits[i+1] += c.digits[i] / 10;
+            c.digits[i] %= 10;
         }
     }
 
@@ -69,8 +117,20 @@ BigInt read_bigint(){
 
     b.size = strlen(c) - 1;
     
-    for(int i = 0; i < b.size; i++){
-        b.digits[i] = c[i] - '0';
+    int i;
+
+    if(c[0] == '-'){
+        b.sign = -1;
+        for(i = 1; i < b.size; i++){
+            b.digits[i-1] = c[i] - '0';
+        }
+        b.size--;
+    } else {
+        b.sign = 1;
+        i = 0;
+        for(i = 0; i < b.size; i++){
+            b.digits[i] = c[i] - '0';
+        }
     }
 
     return b;
@@ -95,10 +155,21 @@ int compare_bigint(BigInt a, BigInt b){
 }
 
 BigInt subtract_bigint(BigInt a, BigInt b){
-    if(compare_bigint(a, b) == -1){
-        BigInt c;
-        c.size = 1;
-        c.digits[0] = 0;
+    if(a.sign == -1 && b.sign == 1){
+        a.sign = 1;
+        BigInt c = sum_bigint(a, b);
+        c.sign = -1;
+        return c;
+    } else if(a.sign == 1 && b.sign == -1){
+        b.sign = 1;
+        return sum_bigint(a, b);
+    } else if(a.sign == -1 && b.sign == -1){
+        a.sign = 1;
+        b.sign = 1;
+        return subtract_bigint(b, a);
+    } else if(compare_bigint(a, b) == -1){
+        BigInt c = subtract_bigint(b, a);
+        c.sign = -1;
         return c;
     }
 
@@ -138,7 +209,9 @@ BigIntDivision divide_bigint(BigInt a, BigInt b){
     BigInt remainder;
 
     quotient.size = 0;
+    quotient.sign = 1;
     remainder.size = 0;
+    remainder.sign = 1;
 
     for(int i = 0; i < a.size; i++){
         append_bigint(&remainder, a.digits[i]);
