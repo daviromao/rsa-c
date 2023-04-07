@@ -268,3 +268,15 @@ BigInt exp_mod_bigint(BigInt b, BigInt e, BigInt m){
 
     return result;
 }
+
+BigInt string_to_bigint(char *s){
+    BigInt b;
+    b.size = strlen(s);
+    b.sign = 1;
+
+    for(int i = 0; i < b.size; i++){
+        b.digits[i] = s[i] - '0';
+    }
+
+    return b;
+}
