@@ -1,5 +1,4 @@
 #include "euclides.c"
-#include "utils.c"
 
 typedef struct PublicKey{
     BigInt n;
