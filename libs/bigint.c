@@ -13,6 +13,19 @@ typedef struct {
     BigInt remainder;
 } BigIntDivision;
 
+BigInt subtract_bigint(BigInt a, BigInt b);
+
+void print_big_int(BigInt a, char *end){
+    if(a.sign == -1){
+        printf("-");
+    }
+
+    for(int i = 0; i < a.size; i++){
+        printf("%d", a.digits[i]);
+    }
+    printf("%s", end);
+}
+
 BigInt invert_bigint(BigInt a){
     short temp;
     for(int i = 0; i < a.size/2; i++){
